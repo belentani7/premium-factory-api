@@ -1,0 +1,18 @@
+{
+  "batch_size": 8,
+  "sleep_s": 0.5,
+  "min_rate_remaining": 100,
+  "max_rate_wait": 900,
+  "skip_forks": true,
+  "node_min": ">=18",
+  "node_ci_version": "18",
+  "enable_codeql_private": false,
+  "author_name": "premium-factory[bot]",
+  "author_email": "premium-factory[bot]@users.noreply.github.com",
+  "git_timeout_s": 300,
+  "codex_hook": {
+    "enabled": false,
+    "timeout_s": 900,
+    "command": "codex exec --full-auto \"Review the factual quality files added to {repo} and write findings to {report}\""
+  }
+}
