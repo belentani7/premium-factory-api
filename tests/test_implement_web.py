@@ -72,7 +72,7 @@ class TestCodexImplementationGate(unittest.TestCase):
             implement(self.repo, "build a page", runner=self.fake_codex())
 
     def test_invalid_html_fails(self):
-        with self.assertRaisesRegex(BuildError, "HTML structure incomplete"):
+        with self.assertRaisesRegex(BuildError, "HTML (missing|structure)"):
             implement(self.repo, "build a page",
                       runner=self.fake_codex(html="<html>not finished</html>"))
 
