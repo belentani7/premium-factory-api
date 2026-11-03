@@ -31,6 +31,7 @@ DEFAULT_CONFIG = {
     "node_min": ">=18",
     "node_ci_version": "18",
     "enable_codeql_private": False,
+    "enable_cursor_rules": False,
     "author_name": "premium-factory[bot]",
     "author_email": "premium-factory[bot]@users.noreply.github.com",
     "git_timeout_s": 300,

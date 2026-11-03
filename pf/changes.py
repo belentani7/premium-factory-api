@@ -10,7 +10,8 @@ Only generates what the repo tree itself proves, and nothing else:
 
 Order matters (deliberately): packaging patches are built FIRST so the
 Node quality workflow is derived from the already-patched package.json.
-No cosmetic edits. No markdown files, ever.
+No cosmetic edits. Markdown files only under the explicit opt-in
+`enable_cursor_rules` (agent documentation: .cursor/rules + AGENTS.md).
 """
 
 from __future__ import annotations
@@ -139,6 +140,133 @@ def detect_ecosystems(tree):
         if _has(tree, manifest) and eco not in found:
             found.append(eco)
     return found
+
+
+# -- opt-in agent documentation (config: enable_cursor_rules) -----------------
+
+def has_cursor_rules(tree):
+    return any(p == ".cursorrules" or p.startswith(".cursor/")
+               for p in tree.paths)
+
+
+def detect_doc_stacks(tree):
+    """Stacks for documentation, wider than build_stacks: PHP and static web
+    are described even when the build system has no changeset for them."""
+    stacks = detect_stacks(tree)
+    if any(p.endswith(".php") for p in tree.paths):
+        stacks.append("php")
+    if (not stacks
+            and any(p.endswith((".html", ".css")) for p in tree.paths)):
+        stacks.append("web-estatico")
+    return stacks
+
+
+_STACK_GUIDES = {
+    "python": (
+        "### Python\n"
+        "- Estándar: PEP 8, type hints en funciones públicas.\n"
+        "- Entorno: `python -m venv .venv`; dependencias en `requirements.txt`"
+        " o `pyproject.toml`.\n"
+        "- Tests: `python -m unittest discover` (o pytest si ya está "
+        "declarado). Todo fix va con test que lo reproduzca primero.\n"),
+    "node": (
+        "### Node.js\n"
+        "- Scripts canónicos: `npm test`, `npm run build` — no inventar "
+        "comandos fuera de `package.json`.\n"
+        "- Estilo: ES modules salvo que el repo declare CommonJS; "
+        "`\"engines\"` define la versión soportada.\n"
+        "- Tests: cada fix lleva test (`*.test.js` / `*.spec.ts`).\n"),
+    "rust": (
+        "### Rust\n"
+        "- `cargo build --locked` cuando exista `Cargo.lock`; `cargo test` "
+        "antes de declarar un cambio terminado.\n"
+        "- Clippy sin warnings en código nuevo.\n"),
+    "go": (
+        "### Go\n"
+        "- `go build ./...`, `go vet ./...`, `go test ./...` como ciclo "
+        "mínimo de verificación.\n"),
+    "php": (
+        "### PHP (PrestaShop)\n"
+        "- Sin tocar lógica de checkout salvo tarea explícita; cambios "
+        "reversibles y aislados en el módulo.\n"
+        "- Templates Smarty en `views/`; escapado de salida siempre.\n"),
+    "web-estatico": (
+        "### Web estática\n"
+        "- HTML/CSS/JS sin build: mantener el repo autocontenido; validar "
+        "abriendo `index.html` o con servidor local.\n"),
+}
+
+_COMMANDS = {
+    "python": "python -m unittest discover",
+    "node": "npm test",
+    "rust": "cargo test",
+    "go": "go test ./...",
+}
+
+
+def cursor_rules_mdc(tree, stacks):
+    guides = "".join(_STACK_GUIDES[s] for s in stacks if s in _STACK_GUIDES)
+    if "node" in stacks and _has(tree, "package.json"):
+        try:
+            scripts = (json.loads(tree.files.get("package.json") or "")
+                       .get("scripts") or {})
+            if scripts.get("test"):
+                guides = guides.replace(
+                    "npm test", "npm test  # %s" % scripts["test"], 1)
+        except ValueError:
+            pass
+    return (
+        "---\n"
+        "description: Estándares de código y verificación de este repo\n"
+        "globs:\n"
+        "alwaysApply: true\n"
+        "---\n"
+        "\n"
+        "# Reglas del proyecto (%s)\n"
+        "\n"
+        "Generado por premium-factory a partir de los archivos presentes; "
+        "si el stack cambia, actualiza esta regla.\n"
+        "\n"
+        "## Principios (aplican siempre)\n"
+        "- Evidence over claims: verificar con el comando del stack antes "
+        "de declarar algo terminado.\n"
+        "- Cambios mínimos y reversibles; nada de reformateos que "
+        "ensucien el diff.\n"
+        "- Un fix = un test que lo reproduce. Un feature = su test.\n"
+        "- Secrets jamás en el repo: variables de entorno o `.env` "
+        "ignorado.\n"
+        "\n"
+        "## Stacks detectados: %s\n"
+        "\n%s" % (tree.full_name, ", ".join(stacks), guides))
+
+
+def agents_md(tree, stacks):
+    commands = [_COMMANDS[s] for s in stacks if s in _COMMANDS]
+    if "node" in stacks and _has(tree, "package.json"):
+        try:
+            scripts = (json.loads(tree.files.get("package.json") or "")
+                       .get("scripts") or {})
+            if scripts.get("build"):
+                commands.append("npm run build")
+        except ValueError:
+            pass
+    lines = [
+        "# AGENTS.md — %s" % tree.full_name, "",
+        "Instrucciones para agentes de código (Cursor, Claude Code, "
+        "Codex, Gemini CLI).", "",
+        "## Stacks: %s" % ", ".join(stacks), "",
+        "## Ciclo de verificación", "",
+    ]
+    lines += ["- `%s`" % c for c in commands] or ["- Verificación manual: "
+                                                  "revisar el README."]
+    lines += [
+        "", "## Reglas", "",
+        "- Evidence over claims: ejecuta la verificación antes de declarar "
+        "éxito.", "- Cambios mínimos y reversibles; un fix llega con su "
+        "test.", "- Nunca commitear secrets ni `.env`.", "",
+        "Ver estándares completos en `.cursor/rules/project.mdc`.", "",
+    ]
+    return "\n".join(lines)
 
 
 # -- YAML/TOML generators (hand-rolled templates: `on:` stays literal) -------
@@ -403,6 +531,23 @@ def build_changeset(tree, config=None):
                 "analyzable source (%s)%s" % (
                     " ".join(langs),
                     "" if not tree.private else ", private enabled by config")))
+
+    # 5) agent documentation — strictly opt-in (markdown is never
+    #    produced unless the operator asks for it)
+    if config.get("enable_cursor_rules"):
+        doc_stacks = detect_doc_stacks(tree)
+        if doc_stacks:
+            if not has_cursor_rules(tree):
+                changes.append(Change(
+                    ".cursor/rules/project.mdc",
+                    cursor_rules_mdc(tree, doc_stacks),
+                    "agent docs enabled; stacks proven: %s; no existing "
+                    "cursor config" % ", ".join(doc_stacks)))
+            if not _has(tree, "AGENTS.md"):
+                changes.append(Change(
+                    "AGENTS.md", agents_md(tree, doc_stacks),
+                    "agent docs enabled; no existing AGENTS.md; stacks: %s"
+                    % ", ".join(doc_stacks)))
 
     changes.sort(key=lambda c: c.path)
     seen = set()
