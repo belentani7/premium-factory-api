@@ -3,7 +3,7 @@
   "batch_size": 12,
   "sleep_s": 0.3,
   "codex_hook": {
-    "enabled": true,
-    "timeout_s": 900
+    "enabled": false,
+    "timeout_s": 300
   }
 }
