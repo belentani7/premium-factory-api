@@ -164,7 +164,7 @@ class TestApiMode(ExecutorCase):
             "from pathlib import Path\n"
             "args = sys.argv[1:]\n"
             "assert len(args) == 3 and args[0] == '-o', args\n"
-            "Path(args[1]).write_text('PASS', encoding='utf-8')\n"
+            "Path(args[1]).write_text('PASS', encoding='utf-8')\n",
             encoding="utf-8")
         config = {"codex_hook": {
             "enabled": True, "timeout_s": 30,
