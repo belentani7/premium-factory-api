@@ -160,11 +160,11 @@ class TestApiMode(ExecutorCase):
     def test_hook_preserves_codex_findings_and_metadata_separately(self):
         script = self.workdir / "fake_codex.py"
         script.write_text(
-            "import sys\\nfrom pathlib import Path\\n"
-            "args = sys.argv[1:]\\n"
-            "assert len(args) == 3 and args[0] == '-o', args\\n"
-            "Path(args[1]).write_text('# Findings\\nPASS\\n', "
-            "encoding='utf-8')\\n",
+            "import sys\n"
+            "from pathlib import Path\n"
+            "args = sys.argv[1:]\n"
+            "assert len(args) == 3 and args[0] == '-o', args\n"
+            "Path(args[1]).write_text('PASS', encoding='utf-8')\n"
             encoding="utf-8")
         config = {"codex_hook": {
             "enabled": True, "timeout_s": 30,
@@ -179,7 +179,7 @@ class TestApiMode(ExecutorCase):
         findings = self.workdir / "reports" / "hook-acme__py-a.md"
         metadata = self.workdir / "reports" / "hook-acme__py-a.json"
         self.assertEqual(findings.read_text(encoding="utf-8"),
-                         "# Findings\\nPASS\\n")
+                         "PASS")
         self.assertEqual(json.loads(metadata.read_text(
             encoding="utf-8"))["hook"]["report_present"], True)
         self.assertEqual(record["decision"], "APPLIED")
