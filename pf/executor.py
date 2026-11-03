@@ -399,12 +399,16 @@ class Executor:
         hook = self.config.get("codex_hook") or {}
         if not hook.get("enabled"):
             return None
-        report_path = self.reports_dir / ("hook-%s.json" % task.full_name
-                                          .replace("/", "__"))
+        # Codex -o produces readable findings; never overwrite them with
+        # the executor's structured hook metadata.
+        report_base = "hook-%s" % task.full_name.replace("/", "__")
+        report_path = self.reports_dir / (report_base + ".md")
+        metadata_path = self.reports_dir / (report_base + ".json")
         command = hook.get("command", "").format(
             repo=task.full_name, report=str(report_path))
         timeout = int(hook.get("timeout_s", 900))
-        result = {"command": command, "timeout_s": timeout}
+        result = {"command": command, "timeout_s": timeout,
+                  "report_path": str(report_path)}
         popen_kwargs = {"shell": True, "stdout": subprocess.PIPE,
                         "stderr": subprocess.PIPE, "text": True}
         if os.name != "nt":
@@ -414,7 +418,7 @@ class Executor:
         except OSError as exc:
             result["status"] = "error"
             result["output_tail"] = str(exc)[-400:]
-            self._write_json(report_path, {"repo": task.full_name,
+            self._write_json(metadata_path, {"repo": task.full_name,
                                            "decision": record["decision"],
                                            "hook": result})
             return result
@@ -423,6 +427,7 @@ class Executor:
             result["status"] = "exit"
             result["code"] = proc.returncode
             result["output_tail"] = (out + err)[-400:]
+            result["report_present"] = report_path.is_file()
         except subprocess.TimeoutExpired:
             # hard kill of the whole tree: a hung agent cannot eat the run
             self._hard_kill(proc)
@@ -430,7 +435,7 @@ class Executor:
             result["status"] = "timeout"
             result["output_tail"] = ("hard timeout after %ss; the batch "
                                      "survives" % timeout)
-        self._write_json(report_path, {"repo": task.full_name,
+        self._write_json(metadata_path, {"repo": task.full_name,
                                        "decision": record["decision"],
                                        "hook": result})
         return result

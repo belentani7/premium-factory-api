@@ -43,11 +43,11 @@ DEFAULT_CONFIG = {
         # lets the reviewer call `gh api` under workspace-write.
         "command": "codex exec -s workspace-write "
                    "-c sandbox_workspace_write.network_access=true "
-                   "--skip-git-repo-check -o \"{report}\" "
+                   "--skip-git-repo-check -o \"{report}\" \""
                    "Review the quality baseline just pushed to the GitHub "
                    "repository {repo}. Use gh api to inspect the .github "
                    "directory, AGENTS.md and .cursor rules. Report factual "
-                   "issues only, no fixes.",
+                   "issues only, no fixes.\"",
     },
 }
 

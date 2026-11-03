@@ -1,4 +1,5 @@
 import json
+import shlex
 import unittest
 
 from pf.changes import RepoTree, build_changeset
@@ -102,6 +103,19 @@ class TestCodexHookCommand(unittest.TestCase):
         self.assertIn("{repo}", command)
         self.assertIn("{report}", command)
         self.assertIn("-o", command)  # codex writes the report itself
+
+    def test_prompt_is_one_argument_even_with_spaces_in_report_path(self):
+        from pf.cli import DEFAULT_CONFIG
+        command = DEFAULT_CONFIG["codex_hook"]["command"].format(
+            repo="belentani7/terratrack-isr",
+            report="/tmp/with spaces/findings.md")
+        args = shlex.split(command)
+        self.assertEqual(args[0:2], ["codex", "exec"])
+        self.assertEqual(args[args.index("-o") + 1],
+                         "/tmp/with spaces/findings.md")
+        self.assertEqual(len(args[args.index("-o") + 2:]), 1,
+                         "Codex accepts exactly one positional prompt")
+        self.assertIn("belentani7/terratrack-isr", args[-1])
 
     def test_hook_disabled_by_default(self):
         from pf.cli import DEFAULT_CONFIG
