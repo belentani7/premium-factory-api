@@ -157,6 +157,33 @@ class TestApiMode(ExecutorCase):
         self.assertEqual(record["hook"]["code"], 0)
         self.assertIn("hook-ok", record["hook"]["output_tail"])
 
+    def test_hook_preserves_codex_findings_and_metadata_separately(self):
+        script = self.workdir / "fake_codex.py"
+        script.write_text(
+            "import sys\\nfrom pathlib import Path\\n"
+            "args = sys.argv[1:]\\n"
+            "assert len(args) == 3 and args[0] == '-o', args\\n"
+            "Path(args[1]).write_text('# Findings\\nPASS\\n', "
+            "encoding='utf-8')\\n",
+            encoding="utf-8")
+        config = {"codex_hook": {
+            "enabled": True, "timeout_s": 30,
+            "command": '"%s" "%s" -o "{report}" "Review {repo}"'
+                       % (sys.executable, script)}}
+        self.github.add_repo("acme/py-a", files=dict(PY_FILES))
+        record = self.executor(apply=True, config=config).process_repo(
+            task("acme/py-a"))
+        self.assertEqual(record["hook"]["status"], "exit")
+        self.assertEqual(record["hook"]["code"], 0,
+                         record["hook"]["output_tail"])
+        findings = self.workdir / "reports" / "hook-acme__py-a.md"
+        metadata = self.workdir / "reports" / "hook-acme__py-a.json"
+        self.assertEqual(findings.read_text(encoding="utf-8"),
+                         "# Findings\\nPASS\\n")
+        self.assertEqual(json.loads(metadata.read_text(
+            encoding="utf-8"))["hook"]["report_present"], True)
+        self.assertEqual(record["decision"], "APPLIED")
+
     def test_disabled_hook_returns_none(self):
         self.github.add_repo("acme/py-a", files=dict(PY_FILES))
         record = self.executor(apply=True).process_repo(task("acme/py-a"))
