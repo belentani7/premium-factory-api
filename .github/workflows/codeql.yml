@@ -1,16 +1,14 @@
-name: codeql
+name: CodeQL
 on:
   push:
-    branches: ["master"]
+    branches: [master]
   pull_request:
+    branches: [master]
 
 permissions:
   contents: read
 
 jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
   analyze:
     runs-on: ubuntu-latest
     permissions:
@@ -18,7 +16,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: python
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
