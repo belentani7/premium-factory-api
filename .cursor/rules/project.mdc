@@ -1,0 +1,22 @@
+---
+description: Estándares de código y verificación de este repo
+globs:
+alwaysApply: true
+---
+
+# Reglas del proyecto (belentani7/premium-factory-api)
+
+Generado por premium-factory a partir de los archivos presentes; si el stack cambia, actualiza esta regla.
+
+## Principios (aplican siempre)
+- Evidence over claims: verificar con el comando del stack antes de declarar algo terminado.
+- Cambios mínimos y reversibles; nada de reformateos que ensucien el diff.
+- Un fix = un test que lo reproduce. Un feature = su test.
+- Secrets jamás en el repo: variables de entorno o `.env` ignorado.
+
+## Stacks detectados: python
+
+### Python
+- Estándar: PEP 8, type hints en funciones públicas.
+- Entorno: `python -m venv .venv`; dependencias en `requirements.txt` o `pyproject.toml`.
+- Tests: `python -m unittest discover` (o pytest si ya está declarado). Todo fix va con test que lo reproduzca primero.
