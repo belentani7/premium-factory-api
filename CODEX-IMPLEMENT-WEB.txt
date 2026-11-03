@@ -1,0 +1,36 @@
+CODEX IMPLEMENT-WEB — ENTREGA DE CÓDIGO REAL
+=============================================
+
+La opción codex_hook de la fábrica original era solo una auditoría:
+"Report factual issues only, no fixes". Generaba informes y gastaba
+tokens por cada commit de baseline, sin modificar páginas.
+
+Nueva orden (dentro de premium-factory-api, PowerShell 7):
+
+  git clone https://github.com/belentani7/premium-factory-api.git
+  cd premium-factory-api
+
+Para trabajar sobre UN PROYECTO CLONADO, por ejemplo:
+  gh repo clone belentani7/el-raco-nuevo "$HOME\\Projects\\el-raco-nuevo"
+  python -m pf.implement_web --repo "$HOME\\Projects\\el-raco-nuevo" --required-file index.html --timeout 360 --effort medium --task "Implementa una landing profesional responsiva con navegación, formularios accesibles, estados de error reales y diseño coherente. Edita index.html y archivos fuente necesarios."
+
+Si es Next.js, no fuerces un index.html incompatible:
+  python -m pf.implement_web --repo "C:\\Projects\\mi-next" --required-file app/page.tsx --task "Implementa la página principal real con los componentes existentes" --verify-command "npm run build"
+
+Qué GARANTIZA el gate:
+- Solo ejecuta en un repositorio Git limpio, en su raíz.
+- Codex trabaja con sandbox workspace-write y esfuerzo medium por defecto.
+- Exige cambio REAL en el archivo fuente solicitado.
+- Un informe Markdown sin código se considera FALLO.
+- HTML requiere doctype, html y body completos (validación estructural mínima).
+- Opcionalmente ejecuta --verify-command y rechaza si falla.
+- Muestra contadores reales de tokens si los emite Codex.
+- Un solo proyecto por ejecución y timeout de 6 minutos por defecto.
+- Nunca hace commit, push ni despliegue. Revisar diffs y pruebas antes.
+- No se pasa GITHUB_TOKEN ni GH_TOKEN al proceso Codex.
+
+NO GARANTIZA: calidad visual, funcionamiento de cada botón ni pruebas
+E2E; esas verificaciones deben implementarse en cada proyecto.
+La validación del HTML es estructural, no certifica accesibilidad completa.
+
+Ejecuta inicialmente una sola repo piloto. No lanzar 425 en paralelo.
