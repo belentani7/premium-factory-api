@@ -90,3 +90,19 @@ class TestCursorRulesContent(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCodexHookCommand(unittest.TestCase):
+    def test_default_hook_uses_modern_codex_syntax(self):
+        from pf.cli import DEFAULT_CONFIG
+        command = DEFAULT_CONFIG["codex_hook"]["command"]
+        self.assertNotIn("--full-auto", command)  # removed in codex 0.166
+        self.assertIn("-s workspace-write", command)
+        self.assertIn("network_access=true", command)
+        self.assertIn("{repo}", command)
+        self.assertIn("{report}", command)
+        self.assertIn("-o", command)  # codex writes the report itself
+
+    def test_hook_disabled_by_default(self):
+        from pf.cli import DEFAULT_CONFIG
+        self.assertFalse(DEFAULT_CONFIG["codex_hook"]["enabled"])

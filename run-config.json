@@ -1,1 +1,9 @@
-{ "enable_cursor_rules": true, "batch_size": 12, "sleep_s": 0.3 }
+{
+  "enable_cursor_rules": true,
+  "batch_size": 12,
+  "sleep_s": 0.3,
+  "codex_hook": {
+    "enabled": true,
+    "timeout_s": 900
+  }
+}

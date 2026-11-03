@@ -38,9 +38,16 @@ DEFAULT_CONFIG = {
     "codex_hook": {
         "enabled": False,
         "timeout_s": 900,
-        "command": "codex exec --full-auto "
-                   "\"Review the factual quality files added to {repo} and "
-                   "write findings to {report}\"",
+        # codex-cli >= 0.166: --full-auto was removed; -s picks the sandbox
+        # and -o makes codex itself write the findings file. network_access
+        # lets the reviewer call `gh api` under workspace-write.
+        "command": "codex exec -s workspace-write "
+                   "-c sandbox_workspace_write.network_access=true "
+                   "--skip-git-repo-check -o \"{report}\" "
+                   "Review the quality baseline just pushed to the GitHub "
+                   "repository {repo}. Use gh api to inspect the .github "
+                   "directory, AGENTS.md and .cursor rules. Report factual "
+                   "issues only, no fixes.",
     },
 }
 
