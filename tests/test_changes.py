@@ -1,8 +1,12 @@
 import json
 import unittest
 
-from pf.changes import (RepoTree, build_changeset, commit_message,
-                        dependabot_yaml, pyproject_toml)
+from pf.changes import (
+    RepoTree,
+    build_changeset,
+    commit_message,
+    pyproject_toml,
+)
 
 PY_REQS = "flask==2.3.2\nrequests>=2.0  # pinned by hand\n-r other.txt\n\n"
 

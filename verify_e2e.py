@@ -22,12 +22,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from pf import cli, ghapi  # noqa: E402
-from pf.checkpoint import Checkpoint  # noqa: E402
-from pf.executor import Executor  # noqa: E402
-from pf.planner import RepoTask  # noqa: E402
-from tests.fakes import FakeGitHub  # noqa: E402
-from tests.test_executor_api import PY_FILES  # noqa: E402
+from pf import cli, ghapi
+from pf.checkpoint import Checkpoint
+from pf.executor import Executor
+from pf.planner import RepoTask
+from tests.fakes import FakeGitHub
+from tests.test_executor_api import PY_FILES
 
 STAGES = []
 

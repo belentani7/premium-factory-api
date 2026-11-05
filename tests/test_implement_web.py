@@ -1,14 +1,11 @@
 """Offline tests: fake Codex, real Git. Never spend Codex tokens."""
-import json
-from pathlib import Path
 import shutil
 import subprocess
-import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 from pf.implement_web import BuildError, implement, usage_from_events
-
 
 VALID_HTML = ("<!doctype html><html lang='es'><head><title>Test</title>"
               "</head><body><main><h1>Working page</h1>"

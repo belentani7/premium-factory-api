@@ -8,12 +8,12 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import re
 import shlex
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 
 class BuildError(Exception):

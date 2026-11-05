@@ -5,10 +5,10 @@ import time
 import unittest
 from pathlib import Path
 
+from pf.audit import load_evidence
 from pf.checkpoint import Checkpoint
 from pf.executor import Executor
 from pf.planner import RepoTask
-from pf.audit import load_evidence
 from tests.fakes import FakeGitHub, make_client
 
 PY_FILES = {

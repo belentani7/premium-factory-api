@@ -13,16 +13,14 @@ FAILED repos are retried automatically on resume; dry-run writes nothing.
 
 from __future__ import annotations
 
-import base64
 import json
 import os
-import re
 import shutil
 import subprocess
 import time
 from pathlib import Path
 
-from . import TOOL_TAG, ghapi
+from . import ghapi
 from .changes import build_changeset, commit_message
 
 PLANNED = "PLANNED"
