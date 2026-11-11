@@ -1,0 +1,10 @@
+{
+  "repo": "premium-factory-api",
+  "familia": "educación",
+  "ajustes_aplicados": 50,
+  "reglas_oficiales_ok": 40,
+  "estado": "estructurado",
+  "producto_completo": false,
+  "generado": "2026-11-10T19:10:43.141253+00:00",
+  "motor": "repo_forge.py"
+}

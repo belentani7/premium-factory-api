@@ -30,3 +30,7 @@ cd premium-factory-api
 
 ## Licencia
 MIT. Ver archivo `LICENSE`.
+
+
+## Producto
+Véase `plataforma/OFERTA.md`, `plataforma/precios.json`, `plataforma/ONEPAGER.md`.
