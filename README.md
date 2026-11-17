@@ -34,3 +34,49 @@ MIT. Ver archivo `LICENSE`.
 
 ## Producto
 Véase `plataforma/OFERTA.md`, `plataforma/precios.json`, `plataforma/ONEPAGER.md`.
+
+## Que es
+
+Plantilla de servicio del ecosistema Belentani: HTML/CSS/JS estático con CI, CodeQL y Dependabot ya configurados.
+
+## Como se ejecuta
+
+```bash
+python -m http.server 8080
+```
+
+Abre `http://127.0.0.1:8080/`. Sin build: HTML estatico.
+
+## Verificacion
+
+```bash
+node --test tests/
+```
+
+El test de humo comprueba que el arbol esperado existe y que el HTML o el paquete no esta roto.
+
+## Estructura
+
+```
+404.html
+AGENTS.md
+BIBLIA.md
+CODEX-IMPLEMENT-WEB.txt
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE
+README.md
+accesibilidad.html
+brand
+config.example.json
+data
+```
+
+## Entorno
+
+- Node.js 20+ o Python 3.11+ segun el stack detectado.
+- Windows 10/11, PowerShell 5.1 o bash.
+
+## Licencia
+
+MIT. Ver `LICENSE`.
