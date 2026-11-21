@@ -1,0 +1,12 @@
+# Generated OS metadata, Python bytecode, and HTML reports
+.DS_Store
+._*
+__MACOSX/
+Thumbs.db
+Desktop.ini
+desktop.ini
+__pycache__/
+*.pyc
+*.pyo
+htmlcov/
+playwright-report/
